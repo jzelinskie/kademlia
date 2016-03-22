@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package kademlia implements a configurable Kademlia Distributed Hash Table.
 package kademlia
 
 import "time"
@@ -24,6 +25,10 @@ type Server struct {
 	// Alpha is a small number representing the degree of parallelism in network
 	// calls.
 	Alpha int
+
+	// B is the size in bytes of the keys used to identify nodes and store and
+	// retrieve data.
+	B int
 
 	// K is the maximum number of contacts stored in a KBucket.
 	K int
@@ -50,6 +55,7 @@ func NewServer() *Server {
 	return &Server{
 		Addr:      ":9043",
 		Alpha:     3,
+		B:         20,
 		K:         20,
 		Expire:    time.Second * 86400,
 		Refresh:   time.Second * 3600,

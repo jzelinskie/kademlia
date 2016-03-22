@@ -14,29 +14,21 @@
 
 package kademlia
 
-import (
-	"net"
-	"testing"
-)
+import "testing"
 
 func TestNodeID(t *testing.T) {
 	var table = []struct {
-		ip       string
-		port     uint32
+		b        int
+		data     []byte
 		expected string
 	}{
-		{"127.0.0.1", 0, "5fbda2308f8be2c4f2e58a8469f1e2b43e5b1f37"},
-		{"192.168.99.100", 5000, "d61f08a1ee4b32c8d5846f9c7feff6148ffb9017"},
+		{1, []byte{0x0}, "b8"},
+		{10, []byte{0x0}, "b8d01df855f7075882c6"},
 	}
 
 	for _, tt := range table {
-		expected, err := NewNodeID(tt.expected)
-		if err != nil {
-			t.Errorf("failed to parse NodeID from %s: %s", tt.expected, err.Error())
-		}
-
-		if node := NewNode(net.ParseIP(tt.ip), tt.port); node.NodeID() != expected {
-			t.Errorf("calculated NodeID (%s) did not match expected (%#v)", node.NodeID(), tt.expected)
+		if nodeID := NewNodeID(tt.b, tt.data); string(nodeID) != tt.expected {
+			t.Errorf("calculated NodeID (%s) did not match expected (%s)", nodeID, tt.expected)
 		}
 	}
 }
