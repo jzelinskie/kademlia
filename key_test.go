@@ -16,7 +16,7 @@ package kademlia
 
 import "testing"
 
-func TestNodeID(t *testing.T) {
+func TestKey(t *testing.T) {
 	var table = []struct {
 		b        int
 		data     []byte
@@ -27,8 +27,8 @@ func TestNodeID(t *testing.T) {
 	}
 
 	for _, tt := range table {
-		if nodeID := NewNodeID(tt.b, tt.data); string(nodeID) != tt.expected {
-			t.Errorf("calculated NodeID (%s) did not match expected (%s)", nodeID, tt.expected)
+		if key := NewKey(tt.b, tt.data); string(key) != tt.expected {
+			t.Errorf("calculated key (%s) did not match expected (%s)", key, tt.expected)
 		}
 	}
 }

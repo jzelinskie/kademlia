@@ -15,32 +15,34 @@
 package kademlia
 
 import (
-	"bytes"
-	"encoding/binary"
+	"crypto/rand"
 	"encoding/hex"
 	"net"
-	"time"
-
-	"golang.org/x/crypto/sha3"
 )
 
 // NodeID is the unique identifier for a given node on a Kademlia network.
+//
+// NodeIDs are encoded as hex strings in order to function as variable-length
+// keys in Go maps.
 type NodeID string
 
 // Bytes constructs a NodeID for a given hex string.
 func (nid NodeID) Bytes() []byte {
 	decoded, err := hex.DecodeString(string(nid))
 	if err != nil {
-		panic("kademlia: failed to decode hex NodeID string: " + err.Error())
+		panic("kademlia: failed to decode NodeID: " + err.Error())
 	}
 	return decoded
 }
 
-// NewNodeID constructs a NodeID of size b.
-func NewNodeID(b int, data []byte) NodeID {
-	hash := make([]byte, b)
-	sha3.ShakeSum256(hash, data)
-	return NodeID(hex.EncodeToString(hash))
+// NewNodeID constructs a NodeID of size b bytes using the standard Go PRNG.
+func NewNodeID(b int) NodeID {
+	bytes := make([]byte, b)
+	_, err := rand.Read(bytes)
+	if err != nil {
+		panic("kademlia: failed to generate random bytes for NodeID: " + err.Error())
+	}
+	return NodeID(hex.EncodeToString(bytes))
 }
 
 // Node is the representation of a client participating in a Kademlia network.
@@ -50,12 +52,10 @@ type Node struct {
 	Port uint32
 }
 
-// NewNode creates a new Node with a NodeID of size b.
+// NewNode creates a new Node with a NodeID of size b bytes.
 func NewNode(b int, ip net.IP, port uint32) *Node {
-	buf := bytes.NewBuffer([]byte(ip))
-	binary.Write(buf, binary.LittleEndian, port)
 	return &Node{
-		ID:   NewNodeID(b, buf.Bytes()),
+		ID:   NewNodeID(b),
 		IP:   ip,
 		Port: port,
 	}

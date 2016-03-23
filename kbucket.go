@@ -14,6 +14,8 @@
 
 package kademlia
 
+import "time"
+
 // KBucket is a collection of long-living nodes with a similar prefix.
 type KBucket struct {
 	Nodes        map[NodeID]Node
@@ -29,8 +31,3 @@ func NewKBucket(k int) *KBucket {
 		LastModified: time.Now(),
 	}
 }
-
-func (kb *KBucket) ping() error                  { return nil }
-func (kb *KBucket) store() error                 { return nil }
-func (kb *KBucket) findNode(n NodeID) error      { return nil }
-func (kb *KBucket) findValue(value []byte) error { return nil }

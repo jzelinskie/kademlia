@@ -15,7 +15,10 @@
 // Package kademlia implements a configurable Kademlia Distributed Hash Table.
 package kademlia
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 // Server represents a Kademlia Distributed Hash Table server.
 type Server struct {
@@ -65,7 +68,23 @@ func NewServer() *Server {
 }
 
 // Get fetches a value with the specified key.
-func (s *Server) Get(key []byte) (value []byte) { return []byte{} }
+func (s *Server) Get(k Key) (value []byte, err error) {
+	if len(k.Bytes()) != s.B {
+		return nil, errors.New("kademlia: attempted to get key with length not equal to B")
+	}
+	return []byte{}, nil
+}
 
 // Set stores a value with the specified key.
-func (s *Server) Set(key []byte) (value []byte) { return []byte{} }
+func (s *Server) Set(k Key) (value []byte, err error) {
+	if len(k.Bytes()) != s.B {
+		return nil, errors.New("kademlia: attempted to set key with length not equal to B")
+	}
+	return []byte{}, nil
+}
+
+// ping is the PING RPC from the Kademlia paper.
+func (s *Server) ping() error                  { return nil }
+func (s *Server) store() error                 { return nil }
+func (s *Server) findNode(n NodeID) error      { return nil }
+func (s *Server) findValue(value []byte) error { return nil }
