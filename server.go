@@ -22,9 +22,6 @@ import (
 
 // Server represents a Kademlia Distributed Hash Table server.
 type Server struct {
-	// Addr is the listen address of the server.
-	Addr string
-
 	// Alpha is a small number representing the degree of parallelism in network
 	// calls.
 	Alpha int
@@ -51,12 +48,14 @@ type Server struct {
 	// Republish is the time after which the original publisher must republish a
 	// key/value pair.
 	Republish time.Duration
+
+	// Transport is the means by which Nodes will communicate with each other.
+	Transport Transport
 }
 
-// NewServer returns a new Kademlia server that
-func NewServer() *Server {
+// NewServer returns a new Kademlia server with sane defaults.
+func NewServer(bootstrap *Node) *Server {
 	return &Server{
-		Addr:      ":9043",
 		Alpha:     3,
 		B:         20,
 		K:         20,
@@ -64,6 +63,7 @@ func NewServer() *Server {
 		Refresh:   time.Second * 3600,
 		Replicate: time.Second * 3600,
 		Republish: time.Second * 86400,
+		Transport: NewUDPServer(":0943"),
 	}
 }
 
