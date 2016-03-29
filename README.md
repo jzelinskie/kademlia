@@ -5,6 +5,6 @@
 
 kademlia is an implementation of the [Kademlia DHT] in Go licensed under the Apache 2.0 license.
 
-This implementation attempts to be as configurable as possible and is not at all coupled to the BitTorrent Kademlia DHT network.
+This implementation strives to be as configurable as possible and is not compatible with the BitTorrent Kademlia DHT network.
 
 [Kademlia DHT]: https://en.wikipedia.org/wiki/Kademlia
