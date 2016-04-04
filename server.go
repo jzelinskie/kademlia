@@ -48,8 +48,8 @@ type Server struct {
 	// Republish is the time after which the original publisher must republish a
 	// key/value pair.
 	//
-	// This value should be slightly smaller than Replicate in order to prevent
-	// the network from racing to delete active data.
+	// This value should be smaller than Expire in order to prevent the network
+	// from racing to delete active data.
 	Republish time.Duration
 
 	// Transport is the means by which Nodes will communicate with each other.
@@ -62,10 +62,10 @@ func NewServer(bootstrap *Node) *Server {
 		Alpha:     3,
 		B:         20,
 		K:         20,
-		Expire:    time.Second * 86400,
-		Refresh:   time.Second * 3600,
-		Replicate: time.Second * 3300,
-		Republish: time.Second * 86400,
+		Expire:    time.Hour * 24,
+		Refresh:   time.Hour,
+		Replicate: time.Hour,
+		Republish: time.Hour * 23,
 		Transport: NewUDPServer(":0943"),
 	}
 }
