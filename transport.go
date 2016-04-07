@@ -15,11 +15,46 @@
 // Package kademlia implements a configurable Kademlia Distributed Hash Table.
 package kademlia
 
-// Transport represents any thread-safe means of communicating between Nodes.
+import (
+	"sync"
+)
+
+type MessageKind int
+
+const (
+	Ping MessageKind = iota
+	Store
+	FindNode
+	FindValue
+)
+
+type Message struct {
+	kind MessageKind
+}
+
+type Inbox struct {
+	channels map[RandomID]<-chan *Message
+	sync.RWMutex
+}
+
+func (i *Inbox) AwaitResponse(id RandomID, respChan <-chan *Message) {
+	i.Lock()
+	defer i.Unlock()
+	channels[id] = respChan
+}
+
+func (i *Inbox) StopWaiting(id RandomID) {
+	i.Lock()
+	defer i.Unlock()
+	delete(channels, id)
+}
+
+// Transport represents any thread-safe, protocol-agnostic means of
+// communicating between Nodes in a Kademlia DHT.
 type Transport interface {
 	Listen() (<-chan *Message, error)
-	Send(Message) error
-	Close()
+	Send(*Message) error
+	Stop()
 }
 
 type UDPServer struct {
