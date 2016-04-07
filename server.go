@@ -96,3 +96,19 @@ func (s *Server) ping() error                  { return nil }
 func (s *Server) store() error                 { return nil }
 func (s *Server) findNode(n NodeID) error      { return nil }
 func (s *Server) findValue(value []byte) error { return nil }
+
+// Node is the representation of a client participating in a Kademlia network.
+type Node struct {
+	ID   RandomID
+	IP   net.IP
+	Port uint32
+}
+
+// NewNode creates a new Node with a NodeID of size b bytes.
+func NewNode(b int, ip net.IP, port uint32) *Node {
+	return &Node{
+		ID:   NewRandomID(b),
+		IP:   ip,
+		Port: port,
+	}
+}
