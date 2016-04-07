@@ -20,8 +20,8 @@ import (
 	"time"
 )
 
-// Server represents a Kademlia Distributed Hash Table server.
-type Server struct {
+// Config represents a Kademlia Distributed Hash Table server.
+type Config struct {
 	// Alpha is a small number representing the degree of parallelism in network
 	// calls.
 	Alpha int
@@ -51,23 +51,28 @@ type Server struct {
 	// This value should be smaller than Expire in order to prevent the network
 	// from racing to delete active data.
 	Republish time.Duration
-
-	// Transport is the means by which Nodes will communicate with each other.
-	Transport Transport
 }
 
-// NewServer returns a new Kademlia server with sane defaults.
-func NewServer(bootstrap *Node) *Server {
-	return &Server{
-		Alpha:     3,
-		B:         20,
-		K:         20,
-		Expire:    time.Hour * 24,
-		Refresh:   time.Hour,
-		Replicate: time.Hour,
-		Republish: time.Hour * 23,
-		Transport: NewUDPServer(":0943"),
-	}
+// DefaultConfig is a Kademlia server configuration with sane defaults.
+var DefaultConfig = &Config{
+	Alpha:     3,
+	B:         20,
+	K:         20,
+	Expire:    time.Hour * 24,
+	Refresh:   time.Hour,
+	Replicate: time.Hour,
+	Republish: time.Hour * 23,
+}
+
+type Server struct {
+	// Transport is the means by which Nodes will communicate with each other.
+	Transport Transport
+
+	// KBuckets are the means of storing contacts (other nodes).
+	KBuckets []KBucket
+
+	// Inbox is the means of routing messages to the proper goroutine.
+	Inbox Inbox
 }
 
 // Get fetches a value with the specified key.
