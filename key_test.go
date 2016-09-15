@@ -16,18 +16,19 @@ package kademlia
 
 import "testing"
 
-func TestKey(t *testing.T) {
+func TestSHA3Shake256KeyTranscoder(t *testing.T) {
 	var table = []struct {
-		b        int
-		data     []byte
-		expected string
+		outputSize int
+		data       []byte
+		expected   string
 	}{
 		{1, []byte{0x0}, "b8"},
 		{10, []byte{0x0}, "b8d01df855f7075882c6"},
 	}
 
 	for _, tt := range table {
-		if key := NewKey(tt.b, tt.data); string(key) != tt.expected {
+		transcoder := SHA3Shake256Transcoder{tt.outputSize}
+		if key := transcoder.Encode(tt.data); string(key) != tt.expected {
 			t.Errorf("calculated key (%s) did not match expected (%s)", key, tt.expected)
 		}
 	}

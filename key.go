@@ -26,19 +26,31 @@ import (
 // keys in Go maps.
 type Key string
 
-// NewKey constructs a new Key of size b bytes using a variable-length SHA3-256
-// ShakeHash.
-func NewKey(b int, data []byte) Key {
-	hash := make([]byte, b)
+// KeyTranscoder is a function that can encode data as a Key capable of being
+// used in a Kademlia DHT.
+type KeyTranscoder interface {
+	Encode([]byte) Key
+	Decode(Key) []byte
+}
+
+// SHA3Shake256Transcoder implements a variable length KeyTranscoder using the
+// output of a variable-length SHA3-256 ShakeHash represented in hex.
+type SHA3Shake256Transcoder struct {
+	OutputSize int
+}
+
+// Encode constructs a new Key.
+func (t SHA3Shake256Transcoder) Encode(data []byte) Key {
+	hash := make([]byte, t.OutputSize)
 	sha3.ShakeSum256(hash, data)
 	return Key(hex.EncodeToString(hash))
 }
 
-// Bytes constructs a NodeID for a given hex string.
-func (k Key) Bytes() []byte {
+// Decode constructs the original bytes out of a Key.
+func (t SHA3Shake256Transcoder) Decode(k Key) []byte {
 	decoded, err := hex.DecodeString(string(k))
 	if err != nil {
-		panic("kademlia: failed to decode Key: " + err.Error())
+		panic("failed to decode hexadecimal form of Key: " + err.Error())
 	}
 	return decoded
 }
