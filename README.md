@@ -3,8 +3,8 @@
 [![Go Report Card](https://goreportcard.com/badge/jzelinskie/kademlia "Go Report Card")](https://goreportcard.com/report/jzelinskie/kademlia)
 [![GoDoc](https://godoc.org/github.com/jzelinskie/kademlia?status.svg "GoDoc")](https://godoc.org/github.com/jzelinskie/kademlia)
 
-kademlia is an implementation of the [Kademlia DHT] in Go licensed under the Apache 2.0 license.
+This project is a playground for attempting to make the ideas in the [Kademlia DHT] more available to Go programmers.
 
-This implementation strives to be as configurable as possible and is not compatible with the BitTorrent Kademlia DHT network.
+The implementation strives to be as configurable as possible, but should be able to offer a configuration that is compatible with the Mainline BitTorrent network.
 
 [Kademlia DHT]: https://en.wikipedia.org/wiki/Kademlia

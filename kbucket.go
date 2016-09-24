@@ -18,7 +18,7 @@ import "time"
 
 // KBucket is a collection of long-living nodes with a similar prefix.
 type KBucket struct {
-	Nodes        map[NodeID]Node
+	Contacts     map[RandomID]Contact
 	Size         int
 	LastModified time.Time
 }
@@ -26,7 +26,7 @@ type KBucket struct {
 // NewKBucket allocates a new KBucket of size k.
 func NewKBucket(k int) *KBucket {
 	return &KBucket{
-		Nodes:        make(map[NodeID]Node),
+		Contacts:     make(map[RandomID]Contact),
 		Size:         k,
 		LastModified: time.Now(),
 	}

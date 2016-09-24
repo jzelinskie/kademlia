@@ -17,21 +17,30 @@ package kademlia
 
 import (
 	"errors"
+	"net"
+	"net/url"
 	"time"
 )
 
-// Config represents a Kademlia Distributed Hash Table server.
-type Config struct {
+// ErrInvalidBootstrap is the error returned when an invalid address is
+// attempted to be used to bootstrap a client into a DHT.
+var ErrInvalidBootstrap = errors.New("location to bootstrap node was invalid")
+
+// DHT represents the methods by which a library consumer interacts with a DHT.
+type DHT interface {
+	Get(Key) ([]byte, error)
+	Set([]byte) (Key, error)
+}
+
+// Kademlia represents a concrete implementation of the Kademlia Distributed
+// Hash Table that adheres to the DHT interface.
+type Kademlia struct {
 	// Alpha is a small number representing the degree of parallelism in network
 	// calls.
 	Alpha int
 
-	// B is the size in bytes of the keys used to identify nodes and store and
-	// retrieve data.
-	B int
-
-	// K is the maximum number of contacts stored in a KBucket.
-	K int
+	// KT is used for the encoding and decoding of keys in the Kademlia DHT.
+	KT KeyTranscoder
 
 	// Expire is the time after which a key/value pair expires; this is a TTL
 	// from the original publication.
@@ -51,64 +60,60 @@ type Config struct {
 	// This value should be smaller than Expire in order to prevent the network
 	// from racing to delete active data.
 	Republish time.Duration
-}
 
-// DefaultConfig is a Kademlia server configuration with sane defaults.
-var DefaultConfig = &Config{
-	Alpha:     3,
-	B:         20,
-	K:         20,
-	Expire:    time.Hour * 24,
-	Refresh:   time.Hour,
-	Replicate: time.Hour,
-	Republish: time.Hour * 23,
-}
-
-type Server struct {
-	// Transport is the means by which Nodes will communicate with each other.
-	Transport Transport
-
-	// KBuckets are the means of storing contacts (other nodes).
-	KBuckets []KBucket
-
-	// Inbox is the means of routing messages to the proper goroutine.
-	Inbox Inbox
+	// kbuckets are the means of storing contacts (other nodes).
+	kbuckets []KBucket
 }
 
 // Get fetches a value with the specified key.
-func (s *Server) Get(k Key) (value []byte, err error) {
-	if len(k.Bytes()) != s.B {
-		return nil, errors.New("kademlia: attempted to get key with length not equal to B")
-	}
+func (k *Kademlia) Get(key Key) (value []byte, err error) {
 	return []byte{}, nil
 }
 
 // Set stores a value with the specified key.
-func (s *Server) Set(k Key) (value []byte, err error) {
-	if len(k.Bytes()) != s.B {
-		return nil, errors.New("kademlia: attempted to set key with length not equal to B")
-	}
-	return []byte{}, nil
+func (k *Kademlia) Set(value []byte) (Key, error) {
+	return "", nil
 }
 
-// ping is the PING RPC from the Kademlia paper.
-func (s *Server) ping() error                  { return nil }
-func (s *Server) store() error                 { return nil }
-func (s *Server) findNode(n NodeID) error      { return nil }
-func (s *Server) findValue(value []byte) error { return nil }
+// Transport represents the RPC layer of a Kademlia DHT.
+type Transport interface {
+	Ping() error
+	Store() error
+	FindNode(n RandomID) error
+	FindValue(value []byte) error
+}
 
-// Node is the representation of a client participating in a Kademlia network.
-type Node struct {
+// Contact is the representation of a client participating in a Kademlia
+// network.
+type Contact struct {
 	ID   RandomID
 	IP   net.IP
 	Port uint32
 }
 
-// NewNode creates a new Node with a NodeID of size b bytes.
-func NewNode(b int, ip net.IP, port uint32) *Node {
-	return &Node{
+// NewContact creates a new Node with a NodeID of size b bytes.
+func NewContact(b int, ip net.IP, port uint32) *Contact {
+	return &Contact{
 		ID:   NewRandomID(b),
 		IP:   ip,
 		Port: port,
 	}
+}
+
+// NewMainlineDHT returns a DHT that connects to the Mainline BitTorrent DHT.
+func NewMainlineDHT(bootstrap []url.URL) (DHT, error) {
+	if bootstrap == nil {
+		return nil, ErrInvalidBootstrap
+	}
+
+	// TODO(jzelinskie): actually bootstrap here
+
+	return &Kademlia{
+		Alpha:     3,
+		KT:        SHA1Transcoder{},
+		Expire:    time.Hour * 24,
+		Refresh:   time.Hour,
+		Replicate: time.Hour,
+		Republish: time.Hour * 23,
+	}, nil
 }

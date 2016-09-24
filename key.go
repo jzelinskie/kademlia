@@ -15,6 +15,7 @@
 package kademlia
 
 import (
+	"crypto/sha1"
 	"encoding/hex"
 
 	"golang.org/x/crypto/sha3"
@@ -48,6 +49,26 @@ func (t SHA3Shake256Transcoder) Encode(data []byte) Key {
 
 // Decode constructs the original bytes out of a Key.
 func (t SHA3Shake256Transcoder) Decode(k Key) []byte {
+	decoded, err := hex.DecodeString(string(k))
+	if err != nil {
+		panic("failed to decode hexadecimal form of Key: " + err.Error())
+	}
+	return decoded
+}
+
+// SHA1Transcoder implements a 20-byte KeyTranscoder using SHA1 hashing.
+// This is the algorithmn used for the Mainline BitTorrent DHT.
+type SHA1Transcoder struct{}
+
+// Encode constructs a new Key.
+func (t SHA1Transcoder) Encode(data []byte) Key {
+	hash := sha1.New()
+	hash.Write(data)
+	return Key(hex.EncodeToString(hash.Sum(nil)))
+}
+
+// Decode constructs the original bytes out of a Key.
+func (t SHA1Transcoder) Decode(k Key) []byte {
 	decoded, err := hex.DecodeString(string(k))
 	if err != nil {
 		panic("failed to decode hexadecimal form of Key: " + err.Error())

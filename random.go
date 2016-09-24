@@ -17,11 +17,10 @@ package kademlia
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"net"
 )
 
 func randomBytes(length int) []byte {
-	bytes := make([]byte, b)
+	bytes := make([]byte, length)
 	_, err := rand.Read(bytes)
 	if err != nil {
 		panic("kademlia: failed to generate random bytes for NodeID: " + err.Error())
@@ -47,4 +46,6 @@ func (r RandomID) Bytes() []byte {
 
 // NewRandomID constructs a RandomID of the provided length using the Go
 // standard library's PRNG.
-func NewRandomID(length int) NodeID { return NodeID(hex.EncodeToString(randomBytes(b))) }
+func NewRandomID(length int) RandomID {
+	return RandomID(hex.EncodeToString(randomBytes(length)))
+}
